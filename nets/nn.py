@@ -4,6 +4,7 @@ import torch
 
 from utils.util import make_anchors
 
+import torch.nn.functional as F
 
 def pad(k, p=None, d=1):
     if d > 1:
@@ -118,7 +119,7 @@ class DarkNet(torch.nn.Module):
 class DarkFPN(torch.nn.Module):
     def __init__(self, width, depth):
         super().__init__()
-        self.up = torch.nn.Upsample(None, 2)
+        # self.up = torch.nn.Upsample(None, 2)
         self.h1 = CSP(width[4] + width[5], width[4], depth[0], False)
         self.h2 = CSP(width[3] + width[4], width[3], depth[0], False)
         self.h3 = Conv(width[3], width[3], 3, 2)
@@ -128,10 +129,17 @@ class DarkFPN(torch.nn.Module):
 
     def forward(self, x):
         p3, p4, p5 = x
-        h1 = self.h1(torch.cat([self.up(p5), p4], 1))
-        h2 = self.h2(torch.cat([self.up(h1), p3], 1))
+        #h1 = self.h1(torch.cat([self.up(p5), p4], 1))
+        #h2 = self.h2(torch.cat([self.up(h1), p3], 1))
+        #h4 = self.h4(torch.cat([self.h3(h2), h1], 1))
+        #h6 = self.h6(torch.cat([self.h5(h4), p5], 1))
+
+        # 直接使用 F.interpolate
+        h1 = self.h1(torch.cat([F.interpolate(p5, scale_factor=2, mode='nearest'), p4], 1))
+        h2 = self.h2(torch.cat([F.interpolate(h1, scale_factor=2, mode='nearest'), p3], 1))
         h4 = self.h4(torch.cat([self.h3(h2), h1], 1))
         h6 = self.h6(torch.cat([self.h5(h4), p5], 1))
+        
         return h2, h4, h6
 
 

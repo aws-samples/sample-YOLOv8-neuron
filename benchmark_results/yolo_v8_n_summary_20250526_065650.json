@@ -1,0 +1,10 @@
+{
+    "performance_comparison": [
+        {
+            "batch_size": 1,
+            "precision_mode": "fp32",
+            "throughput": "1063.30",
+            "time_per_image": "0.94"
+        }
+    ]
+}

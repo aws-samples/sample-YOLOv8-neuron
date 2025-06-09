@@ -1,0 +1,14 @@
+{
+    "batch_comparison": [
+        {
+            "batch_size": 1,
+            "throughput": "1054.37",
+            "time_per_image": "0.95"
+        },
+        {
+            "batch_size": 4,
+            "throughput": "1747.90",
+            "time_per_image": "0.57"
+        }
+    ]
+}

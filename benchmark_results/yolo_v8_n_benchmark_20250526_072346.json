@@ -1,0 +1,20 @@
+{
+    "batch_1": {
+        "total_time": 30.096860647201538,
+        "avg_latency": 0.030278587681551773,
+        "p95_latency": 0.03470907211303711,
+        "throughput": 1063.8963874308124,
+        "time_per_image": 0.9405268952250481,
+        "cpu_percent": 21.2,
+        "memory_percent": 3.4
+    },
+    "batch_4": {
+        "total_time": 72.08351858456929,
+        "avg_latency": 0.10836390537271896,
+        "p95_latency": 0.1231585383415222,
+        "throughput": 1775.8577169875882,
+        "time_per_image": 0.5631524889419476,
+        "cpu_percent": 24.833333333333332,
+        "memory_percent": 3.4
+    }
+}

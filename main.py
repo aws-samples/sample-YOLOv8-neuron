@@ -55,10 +55,10 @@ def train(args, params):
     ema = util.EMA(model) if args.local_rank == 0 else None
 
     filenames = []
-    with open('../Dataset/COCO/train2017.txt') as reader:
+    with open('../datasets/coco/train2017.txt') as reader:
         for filename in reader.readlines():
             filename = filename.rstrip().split('/')[-1]
-            filenames.append('../Dataset/COCO/images/train2017/' + filename)
+            filenames.append('../datasets/coco/images/train2017/' + filename)
 
     dataset = Dataset(filenames, args.input_size, params, True)
 
@@ -190,10 +190,10 @@ def train(args, params):
 @torch.no_grad()
 def test(args, params, model=None):
     filenames = []
-    with open('../Dataset/COCO/val2017.txt') as reader:
+    with open('../datasets/coco/val2017.txt') as reader:
         for filename in reader.readlines():
             filename = filename.rstrip().split('/')[-1]
-            filenames.append('../Dataset/COCO/images/val2017/' + filename)
+            filenames.append('../datasets/coco/images/val2017/' + filename)
 
     dataset = Dataset(filenames, args.input_size, params, False)
     loader = data.DataLoader(dataset, 8, False, num_workers=8,
