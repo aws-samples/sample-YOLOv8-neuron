@@ -38,7 +38,7 @@ conda env create -f neuron_env.yml
 conda activate neuron_env
 ```
 
-### Method 2: Manual Configuration
+### Method 2: Manual Configuration (Recommended)
 
 ```bash
 # Create Python 3.8 environment
