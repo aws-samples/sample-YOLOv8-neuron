@@ -102,3 +102,4 @@ This repository supports multiple YOLOv8 variants:
 ## Performance
 
 The project includes benchmark results in the `benchmark_results/` directory. These results show the performance of different YOLOv8 variants on Inferentia hardware.
+![YOLOv8 n vs m](https://github.com/user-attachments/assets/b5f87867-e514-4b7f-8986-26c42dea272d)
