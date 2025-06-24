@@ -1,24 +1,24 @@
-# YOLOv8模型 用于 AWS Inferentia 
+# YOLOv8 Model for AWS Inferentia
 
-本仓库包含了针对 AWS Inferentia 优化的 YOLOv8 目标检测模型实现，使用 AWS Neuron SDK替代原生的cuda支持。
-本项目基于 https://github.com/jahongir7174/YOLOv8-pt 对YOLOv8模型使用PyTorch的实现的前提下，专门对AWS Inf1 family做了适配以便让YOLOv8在缺失cuda的AWS实例上运行。
+This repository contains YOLOv8 object detection model implementation optimized for AWS Inferentia, using AWS Neuron SDK instead of native CUDA support.
+This project is based on https://github.com/jahongir7174/YOLOv8-pt PyTorch implementation of YOLOv8 model, specifically adapted for AWS Inf1 family to enable YOLOv8 running on AWS instances without CUDA.
 
-## 概述
+## Overview
 
-YOLOv8 是一种先进的目标检测模型，提供卓越的性能和准确性。本项目将 YOLOv8 适配到 AWS Inferentia 加速器上高效运行，这是 AWS 专为加速深度学习工作负载而设计的硬件。
+YOLOv8 is an advanced object detection model that provides exceptional performance and accuracy. This project adapts YOLOv8 to run efficiently on AWS Inferentia accelerators, hardware designed by AWS specifically for accelerating deep learning workloads.
 
-本仓库包括：
-- YOLOv8 模型实现（n、m 和 x 变体，简单修改参数也可兼容其他变体）
-- AWS Neuron SDK 集成，用于 Inferentia 加速
-- 训练和推理脚本
-- 基准测试工具
+This repository includes:
+- YOLOv8 model implementation (n, m, and x variants, can be compatible with other variants by simple parameter modifications)
+- AWS Neuron SDK integration for Inferentia acceleration
+- Training and inference scripts
+- Benchmarking tools
 
-## 环境要求
+## Requirement
 
-### 硬件
-- 基于 AWS Inferentia 的实例（inf1）
+### Hardware
+- AWS Inferentia-based instances (inf1)
 
-### 软件
+### Software
 - Python 3.8
 - AWS Neuron SDK
 - PyTorch 1.13.1
@@ -30,7 +30,7 @@ YOLOv8 是一种先进的目标检测模型，提供卓越的性能和准确性�
 
 ```bash
 # 克隆仓库
-git clone https://gitlab.aws.dev/liupinzh/YOLOv8-neuron-benchmark
+git clone https://github.com/aws-samples/sample-YOLOv8-neuron
 cd YOLOv8-neuron-benchmark
 
 # 创建并激活 Neuron 环境
@@ -97,10 +97,6 @@ python benchmark_mp.py  # 多进程基准测试
 - YOLOv8-n：Nano 版本（最小，最快）
 - YOLOv8-m：Medium 版本（平衡型）
 - YOLOv8-x：Extra large 版本（最高精度）
-
-## 预编译模型
-
-本仓库包含YOLOv8-n 和 YOLOv8-m 在batch-size 为1，2，4情况下的预编译模型。这样可以省去运行基准测试是重新编译模型的时间。
 
 ## 性能
 
