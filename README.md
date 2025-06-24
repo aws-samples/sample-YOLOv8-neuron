@@ -98,10 +98,6 @@ python benchmark_mp.py  # 多进程基准测试
 - YOLOv8-m：Medium 版本（平衡型）
 - YOLOv8-x：Extra large 版本（最高精度）
 
-## 预编译模型
-
-本仓库包含YOLOv8-n 和 YOLOv8-m 在batch-size 为1，2，4情况下的预编译模型。这样可以省去运行基准测试是重新编译模型的时间。
-
 ## 性能
 
 项目在 `benchmark_results/` 目录中包含基准测试结果。这些结果显示了不同 YOLOv8 变体在 Inferentia 硬件上的性能。
