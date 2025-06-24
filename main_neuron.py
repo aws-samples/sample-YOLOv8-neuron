@@ -9,7 +9,7 @@ import pickle
 import numpy
 import torch
 
-#添加 Neuron 相关导入
+#add neuron import
 import torch_neuron
 
 import tqdm
@@ -30,13 +30,14 @@ def learning_rate(args, params):
 
 
 def train(args, params):
-    #修改设备设置
+    #switch to Neuron if specified
     device = 'cpu' if args.neuron else 'cuda'
     
-    # Model 修改模型创建
-    # model = nn.yolo_v8_n(len(params['names'].values())).cuda()
-    #model = nn.yolo_v8_n(len(params['names'].values())).to(device)
-    model = nn.yolo_v8_m(len(params['names'].values())).to(device)
+    # modify model loading - support both n and m models
+    if args.model_size == 'm':
+        model = nn.yolo_v8_m(len(params['names'].values())).to(device)
+    else:
+        model = nn.yolo_v8_n(len(params['names'].values())).to(device)
     
     # Optimizer
     accumulate = max(round(64 / (args.batch_size * args.world_size)), 1)
@@ -187,11 +188,13 @@ def train(args, params):
                 # Save last, best and delete
                 torch.save(ckpt, './weights/last.pt')
                 if best == last[1]:
-                    torch.save(ckpt, './weights/best-n.pt')
+                    best_filename = f'./weights/best-{args.model_size}.pt'
+                    torch.save(ckpt, best_filename)
                 del ckpt
 
     if args.local_rank == 0:
-        util.strip_optimizer('./weights/best-n.pt')  # strip optimizers
+        best_filename = f'./weights/best-{args.model_size}.pt'
+        util.strip_optimizer(best_filename)  # strip optimizers
         util.strip_optimizer('./weights/last.pt')  # strip optimizers
 
     torch.cuda.empty_cache()
@@ -199,7 +202,7 @@ def train(args, params):
 
 @torch.no_grad()
 def test(args, params, model=None):
-    # 修改设备设置
+    #modify device setting
     device = 'cpu' if args.neuron else 'cuda'
     
     filenames = []
@@ -210,30 +213,31 @@ def test(args, params, model=None):
 
     dataset = Dataset(filenames, args.input_size, params, False)
 
-    # 修改batch size 为1
+    #modify batch size and num_workers
     loader = data.DataLoader(dataset, 1, False, num_workers=8,
                              pin_memory=True, collate_fn=Dataset.collate_fn)
 
     if model is None:
-        # 修改模型加载
-        # model = torch.load('./weights/best-n.pt', map_location='cuda')['model'].float()
-        model = torch.load('./weights/best-n.pt', map_location=device)['model'].float()
+        # modify model loading - use model size specific weights
+        best_filename = f'./weights/best-{args.model_size}.pt'
+        model = torch.load(best_filename, map_location=device)['model'].float()
 
         if args.neuron:
-            # 转换为 Neuron 模型
+            # convert model to Neuron format
             print('Converting model to Neuron format...')
             example_input = torch.zeros([1, 3, args.input_size, args.input_size])
-            compiler_args = {
-                'auto_cast': True,
-                'auto_cast_type': 'fp16',
-                'target': 'aws-neuron'
-            }
-            model_neuron = torch.neuron.trace(model, example_input)
+            compiler_args = [
+                '--neuroncore-pipeline-cores', '1',
+                '--fast-math', 'all',
+                '--enable-fast-loading-neuron-binaries',
+                '--enable-fast-context-switch'
+            ]
+            model_neuron = torch.neuron.trace(model, example_input, compiler_args=compiler_args)
             model = model_neuron
-            # 保存转换后的模型
+            # save the Neuron model
             model_neuron.save("yolov8_neuron.pt")
 
-    # 修改模型设置
+    #modify model to device
     if not args.neuron:
         model.half()
     model.eval()
@@ -271,7 +275,7 @@ def test(args, params, model=None):
         #targets[:, 2:] *= torch.tensor((width, height, width, height)).cuda()  # to pixels
         #outputs = util.non_max_suppression(outputs, 0.001, 0.65)
         
-        #修改后处理设备
+        #modify targets to device
         targets[:, 2:] *= torch.tensor((width, height, width, height)).to(device)
         outputs = util.non_max_suppression(outputs, 0.001, 0.65)
         
@@ -340,17 +344,19 @@ def main():
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--test', action='store_true')
 
-    # 添加 Neuron 相关参数
+    # add neuron specific arguments
     parser.add_argument('--neuron', action='store_true', help='use AWS Neuron')
     parser.add_argument('--neuron-threads', type=int, default=4,
                       help='number of neuron threads')
+    parser.add_argument('--model-size', choices=['n', 'm'], default='n',
+                      help='YOLOv8 model size: n (nano) or m (medium)')
 
     args = parser.parse_args()
 
     #args.local_rank = int(os.getenv('LOCAL_RANK', 0))
     #args.world_size = int(os.getenv('WORLD_SIZE', 1))
 
-    # 设置 Neuron 参数
+    #modify environment variables for Neuron
     if args.neuron:
         os.environ['NEURON_RT_NUM_CORES'] = str(args.neuron_threads)
     
@@ -361,7 +367,7 @@ def main():
         #torch.cuda.set_device(device=args.local_rank)
         #torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
-    # 修改分布式训练设置
+    #modify distributed training setup for Neuron
     if args.world_size > 1 and not args.neuron:
         torch.cuda.set_device(device=args.local_rank)
         torch.distributed.init_process_group(backend='nccl', init_method='env://')

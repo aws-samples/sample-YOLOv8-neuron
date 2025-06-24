@@ -31,7 +31,7 @@ This repository includes:
 ```bash
 # 克隆仓库
 git clone https://github.com/aws-samples/sample-YOLOv8-neuron
-cd YOLOv8-neuron-benchmark
+cd sample-YOLOv8-neuron
 
 # 创建并激活 Neuron 环境
 conda env create -f neuron_env.yml
@@ -78,7 +78,7 @@ python -m torch.distributed.launch --nproc_per_node=8 main.py --train
 python main-neuron.py --test --neuron --neuron-threads 4
 
 # 在 Inferentia 上测试 YOLOv8-m 模型
-python main-neuron-m.py --test --neuron --neuron-threads 4
+python main-neuron.py --test --neuron --neuron-threads 4 --model-size m
 ```
 
 `--neuron-threads` 参数控制要使用的 Neuron 核心数量。根据您的实例类型进行调整。
