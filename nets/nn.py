@@ -134,7 +134,7 @@ class DarkFPN(torch.nn.Module):
         #h4 = self.h4(torch.cat([self.h3(h2), h1], 1))
         #h6 = self.h6(torch.cat([self.h5(h4), p5], 1))
 
-        # 直接使用 F.interpolate
+        # use F.interpolate for upsampling
         h1 = self.h1(torch.cat([F.interpolate(p5, scale_factor=2, mode='nearest'), p4], 1))
         h2 = self.h2(torch.cat([F.interpolate(h1, scale_factor=2, mode='nearest'), p3], 1))
         h4 = self.h4(torch.cat([self.h3(h2), h1], 1))

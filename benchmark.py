@@ -16,13 +16,13 @@ class BenchmarkInference:
         self.device = 'cpu'  # neuron
         self.results = {}
         
-        # 加载模型
+        # load the model based on the name
         if model_name == 'yolo_v8_n':
             self.model = nn.yolo_v8_n()
         elif model_name == 'yolo_v8_m':
             self.model = nn.yolo_v8_m()
         
-        # 加载权重
+        # load the weights
         weights_path = f'./weights/best-{model_name[-1]}.pt'
         try:
             checkpoint = torch.load(weights_path, map_location=self.device)
@@ -31,7 +31,7 @@ class BenchmarkInference:
             else:
                 self.model = checkpoint
                 
-            # 确保模型为float32类型
+            # ensure the model is in evaluation mode and float type
             self.model = self.model.float()
             self.model.eval()
             print(f"Successfully loaded model from {weights_path}")
@@ -40,7 +40,7 @@ class BenchmarkInference:
             print(f"Error loading model: {e}")
             raise
         
-        # 转换为neuron模型
+        # Convert to Neuron model
         print("Converting to Neuron model...")
         example_input = torch.zeros(1, 3, input_size, input_size, dtype=torch.float32)
         
@@ -62,24 +62,24 @@ class BenchmarkInference:
                 raise
 
     def create_test_input(self, batch_size=1):
-        """创建测试输入"""
+        """Create test input"""
         input_tensor = torch.zeros(batch_size, 3, self.input_size, self.input_size, 
-                                 dtype=torch.float32)  # 确保类型为float32
+                                 dtype=torch.float32)  # Ensure float32 type
         input_tensor = torch.randint(0, 255, input_tensor.shape, 
-                                   dtype=torch.float32)  # 生成随机数据
-        input_tensor = input_tensor / 255.0  # 归一化
+                                   dtype=torch.float32)  # Generate random data
+        input_tensor = input_tensor / 255.0  # Normalize
         return input_tensor
 
     def single_inference(self, batch_size=1):
-        """单次推理"""
+        """Single inference"""
         input_tensor = self.create_test_input(batch_size)
         start_time = time.time()
-        with torch.no_grad():  # 添加no_grad上下文
+        with torch.no_grad():  # Add no_grad context
             _ = self.model_neuron(input_tensor)
         return time.time() - start_time
     
     def test_concurrent(self, batch_size, num_concurrent):
-        """测试并发性能"""
+        """Test concurrent performance"""
         latencies = []
         
         def inference_task():
@@ -103,25 +103,25 @@ class BenchmarkInference:
         }
     
     def run_benchmark(self, batch_sizes=[1], concurrent_requests=[1,2,4,8,16,32,64]):
-        """运行完整的基准测试"""
+        """Run complete benchmark test"""
         for batch in batch_sizes:
             for concurrent in concurrent_requests:
                 print(f"\nTesting with batch={batch}, concurrent={concurrent}")
                 
-                # 运行3次取平均
+                # Run 3 times and take average
                 results = []
                 for i in range(3):
                     result = self.test_concurrent(batch, concurrent)
                     results.append(result)
-                    time.sleep(1)  # 冷却时间
+                    time.sleep(1)  # Cool down time
                 
-                # 计算平均值
+                # Calculate average values
                 avg_result = {
                     key: np.mean([r[key] for r in results])
                     for key in results[0].keys()
                 }
                 
-                # 保存结果
+                # Save results
                 self.results[f'batch_{batch}_concurrent_{concurrent}'] = avg_result
                 
                 print(f"Throughput: {avg_result['throughput']:.2f} images/sec")
@@ -129,7 +129,7 @@ class BenchmarkInference:
                 print(f"P95 Latency: {avg_result['p95_latency']*1000:.2f} ms")
                 
     def save_results(self):
-        """保存测试结果"""
+        """Save test results"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         results_dir = 'benchmark_results'
         os.makedirs(results_dir, exist_ok=True)
@@ -140,13 +140,13 @@ class BenchmarkInference:
         print(f"\nResults saved to {filename}")
 
 def main():
-    # 测试 YOLOv8-n
+    # Test YOLOv8-n
     print("\nBenchmarking YOLOv8-n...")
     benchmark_n = BenchmarkInference('yolo_v8_n')
     benchmark_n.run_benchmark()
     benchmark_n.save_results()
     
-    # 测试 YOLOv8-m
+    # Test YOLOv8-m
     print("\nBenchmarking YOLOv8-m...")
     benchmark_m = BenchmarkInference('yolo_v8_m')
     benchmark_m.run_benchmark()
