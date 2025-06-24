@@ -62,6 +62,7 @@ This project requires COCO dataset in YOLO format. You can download and prepare 
 ## Usage
 
 ### Training (Pre-trained models are available in weights folder, you can skip this step)
+### Not recommended for Inferntia since it is made for Inferencencing
 
 ```bash
 # Train YOLOv8-n model on GPU
