@@ -24,80 +24,80 @@ This repository includes:
 - PyTorch 1.13.1
 - torch-neuron
 
-## 环境配置
+## Environment Setup
 
-### 方法一：使用 Conda 环境文件
+### Method 1: Using Conda Environment File
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/aws-samples/sample-YOLOv8-neuron
 cd sample-YOLOv8-neuron
 
-# 创建并激活 Neuron 环境
+# Create and activate Neuron environment
 conda env create -f neuron_env.yml
 conda activate neuron_env
 ```
 
-### 方法二：手动配置
+### Method 2: Manual Configuration
 
 ```bash
-# 创建 Python 3.8 环境
+# Create Python 3.8 environment
 conda create -n neuron_env python=3.8
 source /home/ec2-user/.bashrc
 conda activate neuron_env
 
-# 配置 pip 使用 Neuron 仓库
+# Configure pip to use Neuron repository
 pip config set global.extra-index-url https://pip.repos.neuron.amazonaws.com
 
-# 安装必要的包
+# Install required packages
 pip install torch-neuron neuron-cc torch==1.13.1 torchvision
 pip install tensorflow==1.15.5.post1 opencv-python pillow
 pip install tqdm PyYAML psutil tabulate
 ```
 
-## 数据集准备
+## Dataset Preparation
 
-本项目需要 YOLO 格式的 COCO 数据集。您可以自行前往Ultralytics的资源库下载数据集并进行准备。
+This project requires COCO dataset in YOLO format. You can download and prepare the dataset from Ultralytics' repository.
 
-## 使用方法
+## Usage
 
-### 训练 （weights文件夹有已经训练好的模型，可以跳过这一步）
+### Training (Pre-trained models are available in weights folder, you can skip this step)
 
 ```bash
-# 在 GPU 上训练 YOLOv8-n 模型
+# Train YOLOv8-n model on GPU
 python main.py --train
 
-# 使用分布式数据并行训练（多 GPU）
+# Use distributed data parallel training (multi-GPU)
 python -m torch.distributed.launch --nproc_per_node=8 main.py --train
 ```
 
-### 使用 Neuron 进行测试/推理
+### Testing/Inference with Neuron
 
 ```bash
-# 在 Inferentia 上测试 YOLOv8-n 模型
+# Test YOLOv8-n model on Inferentia
 python main-neuron.py --test --neuron --neuron-threads 4
 
-# 在 Inferentia 上测试 YOLOv8-m 模型
+# Test YOLOv8-m model on Inferentia
 python main-neuron.py --test --neuron --neuron-threads 4 --model-size m
 ```
 
-`--neuron-threads` 参数控制要使用的 Neuron 核心数量。根据您的实例类型进行调整。
+The `--neuron-threads` parameter controls the number of Neuron cores to use. Adjust according to your instance type.
 
-### 基准测试
+### Benchmarking
 
 ```bash
-# 运行基准测试
-python benchmark.py #单进程基准测试
-python benchmark_mp.py  # 多进程基准测试
+# Run benchmark tests
+python benchmark.py # Single-process benchmark
+python benchmark_mp.py  # Multi-process benchmark
 ```
 
-## 模型变体
+## Model Variants
 
-本仓库支持多种 YOLOv8 变体：
-- YOLOv8-n：Nano 版本（最小，最快）
-- YOLOv8-m：Medium 版本（平衡型）
-- YOLOv8-x：Extra large 版本（最高精度）
+This repository supports multiple YOLOv8 variants:
+- YOLOv8-n: Nano version (smallest, fastest)
+- YOLOv8-m: Medium version (balanced)
+- YOLOv8-x: Extra large version (highest accuracy)
 
-## 性能
+## Performance
 
-项目在 `benchmark_results/` 目录中包含基准测试结果。这些结果显示了不同 YOLOv8 变体在 Inferentia 硬件上的性能。
+The project includes benchmark results in the `benchmark_results/` directory. These results show the performance of different YOLOv8 variants on Inferentia hardware.
