@@ -47,7 +47,7 @@ opt_einsum==3.4.0
 pillow==10.4.0
 protobuf==3.20.1
 PyYAML @ file:///home/conda/feedstock_root/build_artifacts/pyyaml_1723018227672/work
-requests==2.32.3
+requests==2.32.4
 scipy==1.10.1
 six==1.17.0
 sympy==1.13.3
