@@ -44,7 +44,7 @@ nvidia-nvjitlink-cu12==12.9.41
 nvidia-nvtx-cu12==12.1.105
 opencv-python==4.11.0.86
 opt_einsum==3.4.0
-pillow==10.4.0
+pillow==12.1.1
 protobuf==3.20.1
 PyYAML @ file:///home/conda/feedstock_root/build_artifacts/pyyaml_1723018227672/work
 requests==2.32.3
